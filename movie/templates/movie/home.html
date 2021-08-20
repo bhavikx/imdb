@@ -1,0 +1,252 @@
+<script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
+
+
+<table style="width:100%">
+  <tr>
+    <td>
+		<h2>Get Movies Sorted By</h2>
+
+		<button class="sort-by-name">Name</button>
+		<button class="sort-by-rating">Rating</button>
+		<button class="sort-by-date">Release Date</button>
+    </td>
+    <td>
+    	<input type="text" id="search" placeholder="Search Movie">
+    	<button class="search-by-name">Search by Name</button>
+    	<button class="search-by-des">Search By Description</button>
+    </td>
+  </tr>
+</table>
+
+
+
+<hr>
+<h1 class="m-title">Movies</h1>
+
+<ul class="movies-ul">
+	{% for movie in movies %}
+		<li class="li-{{movie.id}}">
+			<h3>
+				{{movie.name}} <i>({{movie.release_date|date:"Y"}})</i>
+				<button id = "{{movie.id}}" class="movie-detail">See More</button>
+				<!-- : ⭐ {{movie.rating}}
+				{{movie.description}}-->
+			</h3>
+		</li>
+	{% endfor %}
+</ul>
+
+<script type="text/javascript">
+	// get movie detail
+	$(document).on('click', '.movie-detail', function(){
+		$(this).html("Hide")
+		$(this).attr("class", "hide")
+	    movie_id = $(this).attr("id")
+	    console.log(movie_id)
+
+	    $.ajax({
+	        url : "/get-movie-detail/"+movie_id,
+	        type : "GET",
+	        processData: false,
+        	contentType: false,
+	        success : function(data){
+			    console.log('data')
+			    console.log(data)
+			    $(".li-"+movie_id).append("<span class='m-d'> <h3> ⭐ " + data.rating + "</h3> ; " + data.description + " </span>")
+	        }
+    	})
+
+	});
+	// hide movie detail
+	$(document).on('click', '.hide', function(){
+	    $(".m-d").hide()
+	    $(this).html("See More")
+		$(this).attr("class", "movie-detail")
+	});
+
+	function movie_list_dom(id, name, date){
+		'<li class="li-'+id+'">'+
+			'<h3>'+
+				name+' <i>(' + date +'</i>'+
+				'<button id = "'+ id +'" class="movie-detail">See More</button>'+
+			'</h3>'+
+		'</li>'
+	}
+
+	// get movies sorted by Name
+	$(document).on('click', '.sort-by-name', function(){
+	    console.log("name")
+
+	    $.ajax({
+	        url : "/sort-by-name",
+	        type : "GET",
+	        processData: false,
+        	contentType: false,
+	        success : function(data){
+			    console.log('data')
+			    console.log(data)
+			    $('.m-title').html("Movies Sorted By <u>Name</u>")
+			    $('.movies-ul').html("")
+
+			    for(i=0; i<data.length; i++){
+			    	console.log(data[i].id)
+			    	console.log(data[i].name)
+			    	//$('.movies-ul').append("<div>"+data[i].name+"</div>")
+			    	$('.movies-ul').append(
+						'<li class="li-'+data[i].id+'">'+
+							'<h3>'+
+								data[i].name+' <i>(' + data[i].release_date.slice(0,4) +') </i>'+
+								'<button id = "'+ data[i].id +'" class="movie-detail">See More</button>'+
+							'</h3>'+
+						'</li>'
+			    	)
+			    }
+
+	        }
+    	})
+	});
+
+	// get movies sorted by Rating
+	$(document).on('click', '.sort-by-rating', function(){
+	    console.log("name")
+
+	    $.ajax({
+	        url : "/sort-by-rating",
+	        type : "GET",
+	        processData: false,
+        	contentType: false,
+	        success : function(data){
+			    console.log('data')
+			    console.log(data)
+
+			    $('.m-title').html("Movies Sorted By <u>Rating</u>")
+			    $('.movies-ul').html("")
+
+			    for(i=0; i<data.length; i++){
+			    	console.log(data[i].id)
+			    	console.log(data[i].name)
+			    	//$('.movies-ul').append("<div>"+data[i].name+"</div>")
+			    	$('.movies-ul').append(
+						'<li class="li-'+data[i].id+'">'+
+							'<h3>'+
+								data[i].name+' <i>(' + data[i].release_date.slice(0,4) +') </i> ⭐ '+ data[i].rating + "  " +
+								'<button id = "'+ data[i].id +'" class="movie-detail">See More</button>'+
+							'</h3>'+
+						'</li>'
+			    	)
+			    }
+	        }
+    	})
+
+	});
+
+	// get movies sorted by Release Date
+	$(document).on('click', '.sort-by-date', function(){
+	    console.log("name")
+
+	    $.ajax({
+	        url : "/sort-by-date",
+	        type : "GET",
+	        processData: false,
+        	contentType: false,
+	        success : function(data){
+			    console.log('data')
+			    console.log(data)
+
+			    $('.m-title').html("Movies Sorted By <u>Release Date</u>")
+			    $('.movies-ul').html("")
+
+			    for(i=0; i<data.length; i++){
+			    	console.log(data[i].id)
+			    	console.log(data[i].name)
+			    	//$('.movies-ul').append("<div>"+data[i].name+"</div>")
+			    	$('.movies-ul').append(
+						'<li class="li-'+data[i].id+'">'+
+							'<h3>'+
+								data[i].name+' <i>(' + data[i].release_date.slice(0,4) +') </i>'+
+								'<button id = "'+ data[i].id +'" class="movie-detail">See More</button>'+
+							'</h3>'+
+						'</li>'
+			    	)
+			    }
+	        }
+    	})
+
+	});
+
+	// Search by name
+	$(document).on('click', '.search-by-name', function(){
+		search = $("#search").val()
+
+	    $.ajax({
+	        url : "/search-by-name/"+search,
+	        type : "GET",
+	        processData: false,
+        	contentType: false,
+	        success : function(data){
+	        	$('.m-title').html("Results - Searched By Name")
+			    $('.movies-ul').html("")
+
+			    for(i=0; i<data.length; i++){
+			    	console.log(data[i].id)
+			    	console.log(data[i].name)
+			    	//$('.movies-ul').append("<div>"+data[i].name+"</div>")
+			    	$('.movies-ul').append(
+						'<li class="li-'+data[i].id+'">'+
+							'<h3>'+
+								data[i].name+' <i>(' + data[i].release_date.slice(0,4) +') </i>'+
+								'<button id = "'+ data[i].id +'" class="movie-detail">See More</button>'+
+							'</h3>'+
+						'</li>'
+			    	)
+			    }
+	        }
+    	})
+	});
+
+	// Search by description
+	$(document).on('click', '.search-by-des', function(){
+		search = $("#search").val()
+
+	    $.ajax({
+	        url : "/search-by-des/"+search,
+	        type : "GET",
+	        processData: false,
+        	contentType: false,
+	        success : function(data){
+	        	$('.m-title').html("Results - Searched By Description")
+			    $('.movies-ul').html("")
+			    for(i=0; i<data.length; i++){
+			    	console.log(data[i].id)
+			    	console.log(data[i].name)
+			    	//$('.movies-ul').append("<div>"+data[i].name+"</div>")
+			    	$('.movies-ul').append(
+						'<li class="li-'+data[i].id+'">'+
+							'<h3>'+
+								data[i].name+' <i>(' + data[i].release_date.slice(0,4) +') </i>'+
+								'<button id = "'+ data[i].id +'" class="movie-detail">See More</button>'+
+							'</h3>'+
+						'</li>'
+			    	)
+			    }
+	        }
+    	})
+	});
+
+	$(document).on('click', '.see-movie-list', function(){
+	    $.ajax({
+	        url : "/get-movie-list",
+	        type : "GET",
+	        processData: false,
+        	contentType: false,
+	        success : function(data){
+			    console.log('data')
+			    console.log(data)
+	        }
+    	})
+	});
+</script>
+
+<!--
+
+	-->
